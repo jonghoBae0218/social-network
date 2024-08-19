@@ -66,11 +66,16 @@ module.exports = {
         _id: req.params.thoughtId,
       });
 
-      if (!deletedThought) {
+      const thoughtOwner = await User.findOneAndUpdate(
+        { username: deletedThought.username },
+        { $pull: { thoughts: deletedThought._id } },
+        { new: true }
+      );
+      if (!thoughtOwner) {
         return res.status(404).json({ message: "No thought with this ID" });
       }
 
-      res.json(deletedThought);
+      res.json(thoughtOwner);
     } catch (e) {
       res.status(500).json(e);
     }
